@@ -162,7 +162,16 @@ export default function App() {
   };
 
   const callAPI = async (body) => {
-    const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": "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",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify(body)
+    });
     return res.json();
   };
 
