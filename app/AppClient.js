@@ -102,6 +102,12 @@ Responda como porta-voz qualificado. Use APENAS dados dos documentos. Se não so
 
 const G = (w) => ({ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: w });
 
+const Cp = ({ text, id, copied, onCopy, label = "Copiar" }) => (
+  <button onClick={() => onCopy(text, id)} style={{ background: copied===id?"#003a00":"transparent", border:`1.5px solid ${copied===id?"#003a00":C.brilhante}`, color:copied===id?C.branco:C.brilhante, borderRadius:6, padding:"6px 16px", ...G(600), fontSize:12, cursor:"pointer", transition:"all 0.2s", flexShrink:0 }}>
+    {copied===id?"✓ Copiado":label}
+  </button>
+);
+
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -204,14 +210,6 @@ export default function App() {
   };
 
   const copy = (text, key) => { navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(""), 2000); };
-  const Cp = ({ text, id, label = "Copiar" }) => (
-    <button onClick={() => copy(text, id)} style={{ background: copied===id?"#003a00":"transparent", border:`1.5px solid ${copied===id?"#003a00":C.brilhante}`, color:copied===id?C.branco:C.brilhante, borderRadius:6, padding:"6px 16px", ...G(600), fontSize:12, cursor:"pointer", transition:"all 0.2s", flexShrink:0 }}>
-      {copied===id?"✓ Copiado":label}
-    </button>
-  );
-  const Lbl = ({children}) => <div style={{fontSize:10,...G(700),color:C.textLight,textTransform:"uppercase",letterSpacing:2,marginBottom:8}}>{children}</div>;
-  const Pill = ({children,color=C.brilhante}) => <span style={{background:color,color:C.branco,borderRadius:20,padding:"2px 10px",fontSize:10,...G(700),letterSpacing:1,whiteSpace:"nowrap"}}>{children}</span>;
-  const Card = ({children,style={}}) => <div style={{background:C.branco,borderRadius:10,border:`1px solid ${C.border}`,padding:24,...style}}>{children}</div>;
 
   const Header = () => (
     <div style={{background:C.brilhante}}>
@@ -380,7 +378,7 @@ export default function App() {
                         <h1 style={{fontSize:22,...G(800),lineHeight:1.2,letterSpacing:-0.5,marginBottom:10}}>{vResult.release.titulo}</h1>
                         <p style={{fontSize:15,color:C.textMuted,lineHeight:1.6}}>{vResult.release.subtitulo}</p>
                       </div>
-                      <Cp id="rel" label="Copiar" text={`${vResult.release.titulo}\n\n${vResult.release.subtitulo}\n\n${vResult.release.corpo}\n\n${(vResult.release.citacoes||[]).map(c=>`"${c.texto}" — ${c.autor}`).join("\n\n")}\n\n${vResult.release.sobre_ibope}`}/>
+                      <Cp copied={copied} onCopy={copy} id="rel" label="Copiar" text={`${vResult.release.titulo}\n\n${vResult.release.subtitulo}\n\n${vResult.release.corpo}\n\n${(vResult.release.citacoes||[]).map(c=>`"${c.texto}" — ${c.autor}`).join("\n\n")}\n\n${vResult.release.sobre_ibope}`}/>
                     </div>
                     <div style={{borderTop:`3px solid ${C.brilhante}`,paddingTop:20,marginBottom:20}}>{vResult.release.corpo.split("\n\n").map((p,i)=><p key={i} style={{marginBottom:14,fontSize:14,lineHeight:1.85}}>{p}</p>)}</div>
                     <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:20}}>
@@ -395,7 +393,7 @@ export default function App() {
                   {activeTab==="angulos"&&vResult.angulos&&<div>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
                       <div style={{fontSize:15,...G(700)}}>3 ângulos editoriais distintos</div>
-                      <Cp id="ang" label="Copiar" text={vResult.angulos.map((a,i)=>`ÂNGULO ${i+1}: ${a.titulo}\nGancho: ${a.gancho}\nAbordagem: ${a.sugestao_abordagem}`).join("\n\n")}/>
+                      <Cp copied={copied} onCopy={copy} id="ang" label="Copiar" text={vResult.angulos.map((a,i)=>`ÂNGULO ${i+1}: ${a.titulo}\nGancho: ${a.gancho}\nAbordagem: ${a.sugestao_abordagem}`).join("\n\n")}/>
                     </div>
                     {vResult.angulos.map((a,i)=><div key={i} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:20,marginBottom:12,position:"relative",overflow:"hidden"}}>
                       <div style={{position:"absolute",top:0,left:0,width:3,height:"100%",background:[C.brilhante,C.medio,C.profundo][i]}}/>
@@ -411,7 +409,7 @@ export default function App() {
                   </div>}
 
                   {activeTab==="qaresult"&&vResult.qa&&<div>
-                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}><div style={{fontSize:15,...G(700)}}>Q&A para Imprensa</div><Cp id="qa" label="Copiar" text={vResult.qa.map((q,i)=>`P${i+1}: ${q.pergunta}\nR: ${q.resposta}`).join("\n\n")}/></div>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}><div style={{fontSize:15,...G(700)}}>Q&A para Imprensa</div><Cp copied={copied} onCopy={copy} id="qa" label="Copiar" text={vResult.qa.map((q,i)=>`P${i+1}: ${q.pergunta}\nR: ${q.resposta}`).join("\n\n")}/></div>
                     {vResult.qa.map((item,i)=><div key={i} style={{border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden",marginBottom:10}}>
                       <div style={{background:"#eef1ff",padding:"10px 16px",display:"flex",gap:10,alignItems:"flex-start"}}><Pill>P {i+1}</Pill><p style={{fontSize:14,...G(700),lineHeight:1.5}}>{item.pergunta}</p></div>
                       <div style={{padding:"12px 16px 14px 46px"}}><p style={{fontSize:13,color:C.textMuted,lineHeight:1.75}}>{item.resposta}</p></div>
@@ -426,7 +424,7 @@ export default function App() {
                     {(liView==="marcio"?vResult.linkedin.posts_marcio:vResult.linkedin.posts_adriana)?.map((post,i)=><div key={i} style={{border:`1px solid ${C.border}`,borderRadius:10,marginBottom:12,overflow:"hidden"}}>
                       <div style={{background:C.bg,padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${C.border}`}}>
                         <div style={{display:"flex",gap:10}}><span style={{fontSize:12,...G(700),color:C.brilhante}}>{post.dia}</span><span style={{fontSize:11,color:C.textLight}}>· {post.tema}</span></div>
-                        <Cp id={`li-${liView}-${i}`} label="Copiar" text={`${post.post}\n\n${post.hashtags}`}/>
+                        <Cp copied={copied} onCopy={copy} id={`li-${liView}-${i}`} label="Copiar" text={`${post.post}\n\n${post.hashtags}`}/>
                       </div>
                       <div style={{padding:"7px 16px",background:"#fffbeb",borderBottom:"1px solid #f5e8b0"}}><span style={{fontSize:11,color:"#8a6000"}}>💡 {post.motivo}</span></div>
                       <div style={{padding:"14px 16px"}}>{post.post.split("\n").map((line,j)=><p key={j} style={{fontSize:14,lineHeight:1.65,marginBottom:8}}>{line}</p>)}<p style={{fontSize:13,color:"#0077B5",marginTop:10}}>{post.hashtags}</p></div>
@@ -436,7 +434,7 @@ export default function App() {
                   {activeTab==="interna"&&vResult.interna&&<div>
                     <div style={{marginBottom:20}}><div style={{fontSize:15,...G(700),marginBottom:10}}>Estratégia de engajamento</div><div style={{borderLeft:`3px solid ${C.brilhante}`,paddingLeft:16}}><p style={{fontSize:13,lineHeight:1.75,color:C.textMuted}}>{vResult.interna.estrategia}</p></div></div>
                     <div style={{marginBottom:20}}>
-                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div style={{fontSize:15,...G(700)}}>Post Workvivo</div><Cp id="wv" label="Copiar" text={vResult.interna.post_workvivo}/></div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><div style={{fontSize:15,...G(700)}}>Post Workvivo</div><Cp copied={copied} onCopy={copy} id="wv" label="Copiar" text={vResult.interna.post_workvivo}/></div>
                       <div style={{border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden"}}>
                         <div style={{background:C.bg,padding:"10px 16px",borderBottom:`1px solid ${C.border}`}}><span style={{fontSize:11,color:C.textMuted}}>📣 Workvivo</span></div>
                         <div style={{padding:"16px 18px"}}>{vResult.interna.post_workvivo.split("\n").map((l,i)=><p key={i} style={{fontSize:14,lineHeight:1.65,marginBottom:8}}>{l}</p>)}</div>
@@ -516,7 +514,7 @@ export default function App() {
                     <h1 style={{fontSize:22,...G(800),lineHeight:1.2,letterSpacing:-0.5,marginBottom:10}}>{vResult.release.titulo}</h1>
                     <p style={{fontSize:15,color:C.textMuted,lineHeight:1.6}}>{vResult.release.subtitulo}</p>
                   </div>
-                  <Cp id="rel_pub" label="Copiar" text={`${vResult.release.titulo}\n\n${vResult.release.subtitulo}\n\n${vResult.release.corpo}\n\n${(vResult.release.citacoes||[]).map(c=>`"${c.texto}" — ${c.autor}`).join("\n\n")}\n\n${vResult.release.sobre_ibope}`}/>
+                  <Cp copied={copied} onCopy={copy} id="rel_pub" label="Copiar" text={`${vResult.release.titulo}\n\n${vResult.release.subtitulo}\n\n${vResult.release.corpo}\n\n${(vResult.release.citacoes||[]).map(c=>`"${c.texto}" — ${c.autor}`).join("\n\n")}\n\n${vResult.release.sobre_ibope}`}/>
                 </div>
                 <div style={{borderTop:`3px solid ${C.brilhante}`,paddingTop:20,marginBottom:20}}>{vResult.release.corpo.split("\n\n").map((p,i)=><p key={i} style={{marginBottom:14,fontSize:14,lineHeight:1.85}}>{p}</p>)}</div>
                 <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:20}}>
@@ -549,33 +547,7 @@ export default function App() {
           </div>
         )}
 
-        {!isAdmin&&(
-          <div>
-            <div style={{display:"flex",borderBottom:`1px solid ${C.border}`,marginBottom:20,background:C.branco,borderRadius:"10px 10px 0 0",overflow:"hidden"}}>
-              {[{id:"release_pub",label:"📰 Release"},{id:"fotos_pub",label:"📸 Fotos"},{id:"chatbot_pub",label:"💬 Fale com o Ibope"}].map(tab=>(
-                <button key={tab.id} onClick={()=>setActiveTab(tab.id)} style={{padding:"13px 20px",border:"none",background:"none",fontSize:13,...G(activeTab===tab.id?700:400),color:activeTab===tab.id?C.brilhante:C.textMuted,cursor:"pointer",whiteSpace:"nowrap",borderBottom:`2px solid ${activeTab===tab.id?C.brilhante:"transparent"}`,marginBottom:-1,transition:"all 0.15s"}}>{tab.label}</button>
-              ))}
-            </div>
-            {activeTab==="release_pub"&&<Card>
-              {vResult?.release?<div>
-                <div style={{display:"flex",justifyContent:"space-between",gap:16,marginBottom:20}}>
-                  <div style={{flex:1}}><Lbl>Release de Imprensa · Ibope</Lbl>
-                    <h1 style={{fontSize:22,...G(800),lineHeight:1.2,letterSpacing:-0.5,marginBottom:10}}>{vResult.release.titulo}</h1>
-                    <p style={{fontSize:15,color:C.textMuted,lineHeight:1.6}}>{vResult.release.subtitulo}</p>
-                  </div>
-                  <Cp id="rel_pub2" label="Copiar" text={`${vResult.release.titulo}\n\n${vResult.release.corpo}`}/>
-                </div>
-                <div style={{borderTop:`3px solid ${C.brilhante}`,paddingTop:20}}>{vResult.release.corpo.split("\n\n").map((p,i)=><p key={i} style={{marginBottom:14,fontSize:14,lineHeight:1.85}}>{p}</p>)}</div>
-              </div>:<div style={{textAlign:"center",padding:"40px 0",color:C.textLight}}><div style={{fontSize:32,marginBottom:10}}>📰</div><div>Release ainda não disponível</div></div>}
-            </Card>}
-            {activeTab==="fotos_pub"&&<Card>
-              <div style={{fontSize:15,...G(700),marginBottom:16}}>Fotos para Imprensa</div>
-              {fotos.length>0?<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:16}}>{fotos.map(f=><div key={f.id} style={{border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden"}}><img src={f.src} alt={f.name} style={{width:"100%",height:180,objectFit:"cover"}}/><div style={{padding:"10px 12px",display:"flex",justifyContent:"space-between"}}><span style={{fontSize:12,color:C.textMuted}}>{f.name}</span><a href={f.src} download={f.name} style={{background:C.brilhante,color:C.branco,borderRadius:6,padding:"5px 10px",fontSize:11,...G(700),textDecoration:"none"}}>⬇</a></div></div>)}</div>
-              :<div style={{textAlign:"center",padding:"40px 0",color:C.textLight}}><div style={{fontSize:32,marginBottom:10}}>📸</div><div>Nenhuma foto disponível</div></div>}
-            </Card>}
-            {activeTab==="chatbot_pub"&&<Card><div style={{marginBottom:14}}><div style={{fontSize:15,...G(700),marginBottom:4}}>Fale com o Ibope</div><div style={{fontSize:12,color:C.textMuted}}>Tire dúvidas sobre os dados desta pesquisa.</div></div><ChatPanel height={380}/></Card>}
-          </div>
-        )}
+
       </div>
     </div>
   );
