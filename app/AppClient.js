@@ -183,7 +183,7 @@ export default function App() {
       if (textDocs) messages_content.push({ type: "text", text: `Documentos:\n\n${textDocs}` });
       messages_content.push({ type: "text", text: `\n---\nVertical: ${selectedVertical.label}\nPúblico-alvo: ${p.label} (${p.desc}).\nGere o material completo conforme o formato JSON.` });
 
-      const data = await callAPI({ model: "claude-sonnet-4-20250514", max_tokens: 8000, system: buildSystemMain(selectedVertical.label), messages: [{ role: "user", content: messages_content }] });
+      const data = await callAPI({ model: ""claude-sonnet-4-5", max_tokens: 8000, system: buildSystemMain(selectedVertical.label), messages: [{ role: "user", content: messages_content }] });
       const text = data.content.map(i => i.text || "").join("");
       setResult(prev => ({ ...prev, [vid]: JSON.parse(text.replace(/```json|```/g, "").trim()) }));
       setQuiz({ current: 0, answered: null, score: 0, done: false }); setActiveTab("release");
@@ -197,7 +197,7 @@ export default function App() {
     const hist = [...vChat, { role: "user", text: msg }];
     setChat(prev => ({ ...prev, [vid]: hist })); setChatLoading(true);
     try {
-      const data = await callAPI({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: buildSystemChatbot(docsCtx), messages: hist.map(m => ({ role: m.role, content: m.text })) });
+      const data = await callAPI({ model: ""claude-sonnet-4-5", max_tokens: 1000, system: buildSystemChatbot(docsCtx), messages: hist.map(m => ({ role: m.role, content: m.text })) });
       setChat(prev => ({ ...prev, [vid]: [...hist, { role: "assistant", text: data.content.map(i => i.text || "").join("") }] }));
     } catch { setChat(prev => ({ ...prev, [vid]: [...hist, { role: "assistant", text: "Erro ao conectar." }] })); }
     finally { setChatLoading(false); }
