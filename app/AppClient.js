@@ -192,9 +192,13 @@ export default function App() {
       if (textDocs) messages_content.push({ type: "text", text: `Documentos:\n\n${textDocs}` });
       messages_content.push({ type: "text", text: `\n---\nVertical: ${selectedVertical.label}\nPúblico-alvo: ${p.label} (${p.desc}).\nGere o material completo conforme o formato JSON.` });
 
-      const data = await callAPI({ model: "claude-sonnet-4-5", max_tokens: 8000, system: buildSystemMain(selectedVertical.label), messages: [{ role: "user", content: messages_content }] });
+      const data = await callAPI({ model: "claude-sonnet-4-5", max_tokens: 16000, system: buildSystemMain(selectedVertical.label), messages: [{ role: "user", content: messages_content }] });
       const text = data.content.map(i => i.text || "").join("");
-      setResult(prev => ({ ...prev, [vid]: JSON.parse(text.replace(/```json|```/g, "").trim()) }));
+      const clean = text.replace(/```json|```/g, "").trim();
+      let parsed;
+      try { parsed = JSON.parse(clean); }
+      catch(e) { setError("A resposta da IA veio incompleta. Tente novamente — documentos muito grandes podem causar isso."); setLoading(false); return; }
+      setResult(prev => ({ ...prev, [vid]: parsed }));
       setQuiz({ current: 0, answered: null, score: 0, done: false }); setActiveTab("release");
     } catch(e) { setError("Erro ao gerar. Verifique os documentos e tente novamente."); console.error(e); }
     finally { setLoading(false); }
