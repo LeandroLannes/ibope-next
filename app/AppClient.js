@@ -102,6 +102,36 @@ Responda como porta-voz qualificado. Use APENAS dados dos documentos. Se não so
 
 const G = (w) => ({ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: w });
 
+const ChatPanel = ({ height=340, vDocs, vChat, chatLoading, chatInput, setChatInput, sendChat, setChat, vid, chatEnd }) => (
+  <div style={{border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden"}}>
+    <div style={{background:C.bg,padding:"10px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",gap:8,alignItems:"center"}}>
+      <div style={{width:7,height:7,borderRadius:"50%",background:vDocs.length?"#00bb00":"#cc0000"}}/>
+      <span style={{fontSize:12,color:C.textMuted}}>{vDocs.length?`${vDocs.length} documento${vDocs.length>1?"s":""} na memória`:"Nenhum documento carregado"}</span>
+    </div>
+    <div style={{height,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:12,background:"#fafbff"}}>
+      {vChat.length===0&&<div style={{textAlign:"center",color:C.textLight,marginTop:height>300?70:30}}>
+        <div style={{fontSize:26,marginBottom:8}}>🎙</div>
+        <div style={{fontSize:13}}>Faça uma pergunta sobre os dados</div>
+      </div>}
+      {vChat.map((m,i)=>(
+        <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
+          <div style={{maxWidth:"82%",background:m.role==="user"?C.brilhante:C.branco,color:m.role==="user"?C.branco:C.textMain,borderRadius:m.role==="user"?"12px 12px 2px 12px":"12px 12px 12px 2px",padding:"10px 14px",fontSize:13,lineHeight:1.65,boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:m.role==="assistant"?`1px solid ${C.border}`:"none"}}>
+            {m.role==="assistant"&&<div style={{fontSize:10,...G(700),color:C.textLight,marginBottom:6,letterSpacing:1,textTransform:"uppercase"}}>Porta-voz Ibope</div>}
+            {m.text.split("\n").map((l,j)=><p key={j} style={{marginBottom:4}}>{l}</p>)}
+          </div>
+        </div>
+      ))}
+      {chatLoading&&<div style={{display:"flex"}}><div style={{background:C.branco,border:`1px solid ${C.border}`,borderRadius:"12px 12px 12px 2px",padding:"10px 16px",fontSize:12,color:C.textLight}}><span style={{display:"inline-block",animation:"spin 1s linear infinite"}}>⟳</span> Formulando...</div></div>}
+      <div ref={chatEnd}/>
+    </div>
+    <div style={{borderTop:`1px solid ${C.border}`,padding:"12px 14px",display:"flex",gap:8,background:C.branco}}>
+      <input value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&sendChat()} placeholder="Digite sua pergunta..." style={{flex:1,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.textMain,outline:"none",background:C.bg,...G(400)}} disabled={chatLoading}/>
+      <button onClick={sendChat} disabled={chatLoading||!chatInput.trim()} style={{background:chatLoading||!chatInput.trim()?C.textLight:C.brilhante,color:C.branco,border:"none",borderRadius:8,padding:"10px 20px",fontSize:13,...G(700),cursor:chatLoading||!chatInput.trim()?"not-allowed":"pointer"}}>Enviar</button>
+      {vChat.length>0&&<button onClick={()=>setChat(prev=>({...prev,[vid]:[]}))} style={{background:C.branco,color:C.textLight,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 12px",fontSize:12,cursor:"pointer"}}>Limpar</button>}
+    </div>
+  </div>
+);
+
 const Lbl = ({children}) => <div style={{fontSize:10,...G(700),color:C.textLight,textTransform:"uppercase",letterSpacing:2,marginBottom:8}}>{children}</div>;
 const Pill = ({children,color=C.brilhante}) => <span style={{background:color,color:C.branco,borderRadius:20,padding:"2px 10px",fontSize:10,...G(700),letterSpacing:1,whiteSpace:"nowrap"}}>{children}</span>;
 const Card = ({children,style={}}) => <div style={{background:C.branco,borderRadius:10,border:`1px solid ${C.border}`,padding:24,...style}}>{children}</div>;
@@ -235,35 +265,7 @@ export default function App() {
     </div>
   );
 
-  const ChatPanel = ({ height=340 }) => (
-    <div style={{border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden"}}>
-      <div style={{background:C.bg,padding:"10px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",gap:8,alignItems:"center"}}>
-        <div style={{width:7,height:7,borderRadius:"50%",background:vDocs.length?"#00bb00":"#cc0000"}}/>
-        <span style={{fontSize:12,color:C.textMuted}}>{vDocs.length?`${vDocs.length} documento${vDocs.length>1?"s":""} na memória`:"Nenhum documento carregado"}</span>
-      </div>
-      <div style={{height,overflowY:"auto",padding:16,display:"flex",flexDirection:"column",gap:12,background:"#fafbff"}}>
-        {vChat.length===0&&<div style={{textAlign:"center",color:C.textLight,marginTop:height>300?70:30}}>
-          <div style={{fontSize:26,marginBottom:8}}>🎙</div>
-          <div style={{fontSize:13}}>Faça uma pergunta sobre os dados</div>
-        </div>}
-        {vChat.map((m,i)=>(
-          <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
-            <div style={{maxWidth:"82%",background:m.role==="user"?C.brilhante:C.branco,color:m.role==="user"?C.branco:C.textMain,borderRadius:m.role==="user"?"12px 12px 2px 12px":"12px 12px 12px 2px",padding:"10px 14px",fontSize:13,lineHeight:1.65,boxShadow:"0 2px 8px rgba(0,0,0,0.06)",border:m.role==="assistant"?`1px solid ${C.border}`:"none"}}>
-              {m.role==="assistant"&&<div style={{fontSize:10,...G(700),color:C.textLight,marginBottom:6,letterSpacing:1,textTransform:"uppercase"}}>Porta-voz Ibope</div>}
-              {m.text.split("\n").map((l,j)=><p key={j} style={{marginBottom:4}}>{l}</p>)}
-            </div>
-          </div>
-        ))}
-        {chatLoading&&<div style={{display:"flex"}}><div style={{background:C.branco,border:`1px solid ${C.border}`,borderRadius:"12px 12px 12px 2px",padding:"10px 16px",fontSize:12,color:C.textLight}}><span style={{display:"inline-block",animation:"spin 1s linear infinite"}}>⟳</span> Formulando...</div></div>}
-        <div ref={chatEnd}/>
-      </div>
-      <div style={{borderTop:`1px solid ${C.border}`,padding:"12px 14px",display:"flex",gap:8,background:C.branco}}>
-        <input value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&sendChat()} placeholder="Digite sua pergunta..." style={{flex:1,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",fontSize:13,color:C.textMain,outline:"none",background:C.bg,...G(400)}} disabled={chatLoading}/>
-        <button onClick={sendChat} disabled={chatLoading||!chatInput.trim()} style={{background:chatLoading||!chatInput.trim()?C.textLight:C.brilhante,color:C.branco,border:"none",borderRadius:8,padding:"10px 20px",fontSize:13,...G(700),cursor:chatLoading||!chatInput.trim()?"not-allowed":"pointer"}}>Enviar</button>
-        {vChat.length>0&&<button onClick={()=>setChat(prev=>({...prev,[vid]:[]}))} style={{background:C.branco,color:C.textLight,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 12px",fontSize:12,cursor:"pointer"}}>Limpar</button>}
-      </div>
-    </div>
-  );
+  const chatPanelProps = { height:340, vDocs, vChat, chatLoading, chatInput, setChatInput, sendChat, setChat, vid, chatEnd };
 
   const css = `@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap');*{box-sizing:border-box;margin:0;padding:0}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}::placeholder{color:${C.textLight}}input,textarea,button{font-family:'Geist',system-ui,sans-serif!important}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:${C.border};border-radius:4px}`;
 
@@ -484,7 +486,7 @@ export default function App() {
 
                   {activeTab==="chatbot"&&<div>
                     <div style={{marginBottom:14}}><div style={{fontSize:15,...G(700),marginBottom:4}}>Chatbot de Imprensa</div><div style={{fontSize:12,color:C.textMuted}}>Simule perguntas de repórteres.</div></div>
-                    <ChatPanel height={360}/>
+                    <ChatPanel {...chatPanelProps} height={360}/>
                   </div>}
                 </div>
               </div>
@@ -549,7 +551,7 @@ export default function App() {
 
             {activeTab==="chatbot_pub"&&<Card>
               <div style={{marginBottom:14}}><div style={{fontSize:15,...G(700),marginBottom:4}}>Fale com o Ibope</div><div style={{fontSize:12,color:C.textMuted}}>Tire dúvidas sobre os dados desta pesquisa.</div></div>
-              <ChatPanel height={380}/>
+              <ChatPanel {...chatPanelProps} height={380}/>
             </Card>}
           </div>
         )}
