@@ -102,6 +102,9 @@ Responda como porta-voz qualificado. Use APENAS dados dos documentos. Se não so
 
 const G = (w) => ({ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: w });
 
+const Lbl = ({children}) => <div style={{fontSize:10,...G(700),color:C.textLight,textTransform:"uppercase",letterSpacing:2,marginBottom:8}}>{children}</div>;
+const Pill = ({children,color=C.brilhante}) => <span style={{background:color,color:C.branco,borderRadius:20,padding:"2px 10px",fontSize:10,...G(700),letterSpacing:1,whiteSpace:"nowrap"}}>{children}</span>;
+const Card = ({children,style={}}) => <div style={{background:C.branco,borderRadius:10,border:`1px solid ${C.border}`,padding:24,...style}}>{children}</div>;
 const Cp = ({ text, id, copied, onCopy, label = "Copiar" }) => (
   <button onClick={() => onCopy(text, id)} style={{ background: copied===id?"#003a00":"transparent", border:`1.5px solid ${copied===id?"#003a00":C.brilhante}`, color:copied===id?C.branco:C.brilhante, borderRadius:6, padding:"6px 16px", ...G(600), fontSize:12, cursor:"pointer", transition:"all 0.2s", flexShrink:0 }}>
     {copied===id?"✓ Copiado":label}
